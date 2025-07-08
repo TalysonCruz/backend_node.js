@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  name      String?
+  password  String
+  createdAt DateTime   @default(now())
+  updateAt  DateTime   @default(now())
+  Cart      Cart[]
+  Checkout  Checkout[]
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updateAt  DateTime @default(now())
+}
+
+model Product {
+  id            Int           @id @default(autoincrement())
+  name          String        @unique
+  description   String
+  price         Float
+  stock         Int
+  createAt      DateTime      @default(now())
+  Cart          Cart[]
+  OrderItem     OrderItem[]
+
+  categoryId    Int
+  category      Category      @relation(fields: [categoryId], references: [id])
+
+  subCategory   SubCategory   @relation(fields: [subCategoryId], references: [id])
+  subCategoryId Int           
+}
+
+model SubCategory {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+
+  products Product[]  // Agora é uma lista de produtos (1:N)
+  category Category  @relation(fields: [categoryId], references: [id])
+  categoryId Int     
+}
+
+model Category {
+  id             Int             @id @default(autoincrement())
+  name           String          @unique
+  subCategories  SubCategory[]   // 1:N: Uma categoria pode ter várias subcategorias
+  products       Product[]
+}
+
+model Cart {
+  id        Int     @id @default(autoincrement())
+  amount    Int
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+model Checkout {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  total     Float
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+
+  OrderItem OrderItem[]
+}
+
+model OrderItem {
+  id        Int   @id @default(autoincrement())
+  amount    Int
+  unitPrice Float
+
+  checkout   Checkout @relation(fields: [checkoutId], references: [id])
+  checkoutId Int
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+}

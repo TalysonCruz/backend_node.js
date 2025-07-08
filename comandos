@@ -1,0 +1,21 @@
+npm install express
+npm install prisma --save-dev
+npx prisma init
+npx prisma generate
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+npx prisma db push
+
+postgresql://postgres:2263@localhost:5432/Loja?schema=public
+DATABASE_URL="mongodb+srv://talysoncruz155:pI2Y9ziCWxtRXvcd@users.t8ru8p7.mongodb.net/Users?retryWrites=true&w=majority&appName=Users"
+
+model Orcamento {
+    id    String @id @default(auto()) @map("_id") @db.ObjectId
+    cliente   String
+    descricao   String
+    condicoes   String
+}
